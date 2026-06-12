@@ -1,0 +1,59 @@
+{
+  "entity": {
+    "sensor": {
+      "cur_voltage": {"default": "mdi:flash"},
+      "cur_current": {"default": "mdi:current-ac"},
+      "cur_power": {"default": "mdi:flash-outline"},
+      "cur_frequency": {"default": "mdi:sine-wave"},
+      "power_factor": {"default": "mdi:angle-acute"},
+      "cpu_temp": {"default": "mdi:thermometer"},
+      "ele": {"default": "mdi:lightning-bolt"},
+      "cost": {"default": "mdi:currency-cny"},
+      "leakage_ele": {"default": "mdi:flash-triangle-outline"},
+      "leakage_current": {"default": "mdi:current-ac"},
+      "balance_energy": {"default": "mdi:battery-charging"},
+      "warning": {"default": "mdi:alert-circle-outline"},
+      "add_ele": {"default": "mdi:plus-circle-outline"},
+      "add_cost": {"default": "mdi:cash-plus"},
+      "ip_address": {"default": "mdi:ip-network"}
+    },
+    "switch": {
+      "switch_1": {"default": "mdi:power"},
+      "control": {"default": "mdi:shield-check-outline"},
+      "beep": {"default": "mdi:volume-high"},
+      "prepayment_switch": {"default": "mdi:cash-check"},
+      "real_time_switch": {"default": "mdi:timer-outline"}
+    },
+    "select": {
+      "language": {"default": "mdi:translate"},
+      "sw_mode": {"default": "mdi:toggle-switch-variant"},
+      "standby_screen": {"default": "mdi:monitor-screenshot"},
+      "menu": {"default": "mdi:monitor"},
+      "price_mode": {"default": "mdi:cash-multiple"}
+    },
+    "number": {
+      "ovp": {"default": "mdi:flash-alert"},
+      "ocp": {"default": "mdi:flash-alert-outline"},
+      "opp": {"default": "mdi:flash-red-eye"},
+      "lvp": {"default": "mdi:flash-outline"},
+      "olcp": {"default": "mdi:current-ac"},
+      "price": {"default": "mdi:currency-cny"},
+      "work_value": {"default": "mdi:brightness-7"},
+      "standby_value": {"default": "mdi:brightness-4"},
+      "standby_time": {"default": "mdi:timer-sand"},
+      "over_time": {"default": "mdi:timer-outline"},
+      "countdown_1": {"default": "mdi:timer"},
+      "credit": {"default": "mdi:battery-alert"},
+      "reporting_interval": {"default": "mdi:update"},
+      "energy_charge": {"default": "mdi:cash-plus"},
+      "add_ele_rw": {"default": "mdi:plus-circle"}
+    },
+    "button": {
+      "data_reset": {"default": "mdi:refresh"},
+      "wifi_reset": {"default": "mdi:wifi-off"},
+      "factor_reset": {"default": "mdi:restore"},
+      "screen_rotation": {"default": "mdi:screen-rotation"},
+      "clear_energy": {"default": "mdi:battery-off"}
+    }
+  }
+}

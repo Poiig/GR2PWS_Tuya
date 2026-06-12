@@ -1,0 +1,5 @@
+{
+  "name": "GR2PWS Smart Energy Meter",
+  "homeassistant": "2024.1.0",
+  "render_readme": true
+}

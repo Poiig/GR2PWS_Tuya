@@ -1,0 +1,117 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "GR2PWS 智能电表",
+        "description": "输入您的 Smart Life 或 Tuya Smart 用户代码。\n\n在 APP 的「设置 > 账户和安全」中找到用户代码，区分大小写。",
+        "data": {
+          "user_code": "用户代码"
+        }
+      },
+      "qrcode": {
+        "title": "扫描二维码",
+        "description": "使用 Smart Life 或 Tuya Smart APP 扫描下方二维码完成登录，在 APP 中确认后点击提交。"
+      },
+      "select_device": {
+        "title": "选择设备",
+        "description": "扫码成功！选择要添加的 GR2PWS 设备，系统将自动扫描局域网获取设备 IP。",
+        "data": {
+          "device_id": "选择设备",
+          "scan_interval": "轮询间隔（秒）"
+        }
+      }
+    },
+    "error": {
+      "login_error": "登录失败，请检查用户代码后重试。",
+      "device_not_found": "未找到该设备。",
+      "no_devices_found": "您的账户中没有找到任何设备。"
+    },
+    "abort": {
+      "already_configured": "该设备已经配置过了。",
+      "tuya_integration_required": "需要先安装 Home Assistant 官方 Tuya 集成才能使用扫码登录。"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "GR2PWS 选项",
+        "description": "调整设备的数据轮询间隔。",
+        "data": {
+          "scan_interval": "轮询间隔（秒）"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "cur_voltage": { "name": "当前电压" },
+      "cur_current": { "name": "当前电流" },
+      "cur_power": { "name": "当前功率" },
+      "cur_frequency": { "name": "当前频率" },
+      "power_factor": { "name": "功率因数" },
+      "cpu_temp": { "name": "仪表CPU温度" },
+      "ele": { "name": "总电量" },
+      "cost": { "name": "总电费" },
+      "leakage_ele": { "name": "漏电总电量" },
+      "leakage_current": { "name": "漏电电流" },
+      "balance_energy": { "name": "剩余可用电量" },
+      "warning": { "name": "告警状态" },
+      "add_ele": { "name": "增加电量" },
+      "add_cost": { "name": "增加电费" },
+      "ip_address": { "name": "设备内网IP" }
+    },
+    "switch": {
+      "switch_1": { "name": "开关状态" },
+      "control": { "name": "超限控制使能" },
+      "beep": { "name": "系统声音" },
+      "prepayment_switch": { "name": "预付费开关" },
+      "real_time_switch": { "name": "数据实时刷新" }
+    },
+    "select": {
+      "language": {
+        "name": "设备语言",
+        "state": { "chinese": "中文", "english": "英文" }
+      },
+      "sw_mode": {
+        "name": "开关模式",
+        "state": { "controlled": "受控模式", "normally_open": "常开模式" }
+      },
+      "standby_screen": {
+        "name": "待机画面",
+        "state": { "original": "默认画面", "measurement": "测量数据" }
+      },
+      "menu": {
+        "name": "设备显示风格",
+        "state": { "front": "正面", "back": "背面", "display_off": "关闭显示" }
+      },
+      "price_mode": {
+        "name": "电费计价模式",
+        "state": { "single_rate": "单一费率", "stair": "阶梯电价", "peak_valley_stair": "峰谷阶梯电价" }
+      }
+    },
+    "number": {
+      "ovp": { "name": "过压值" },
+      "ocp": { "name": "过流值" },
+      "opp": { "name": "过功率值" },
+      "lvp": { "name": "欠压值" },
+      "olcp": { "name": "漏电阀值" },
+      "price": { "name": "电费单价" },
+      "work_value": { "name": "工作屏幕亮度" },
+      "standby_value": { "name": "待机屏幕亮度" },
+      "standby_time": { "name": "进入待机时间" },
+      "over_time": { "name": "超限恢复延时" },
+      "countdown_1": { "name": "开关倒计时" },
+      "credit": { "name": "电量不足报警值" },
+      "reporting_interval": { "name": "数据刷新间隔" },
+      "energy_charge": { "name": "电量充值" },
+      "add_ele_rw": { "name": "增加电量" }
+    },
+    "button": {
+      "data_reset": { "name": "累计数据清零" },
+      "wifi_reset": { "name": "WiFi设备重置" },
+      "factor_reset": { "name": "恢复出厂设置" },
+      "screen_rotation": { "name": "屏幕旋转" },
+      "clear_energy": { "name": "剩余电量清零" }
+    }
+  }
+}

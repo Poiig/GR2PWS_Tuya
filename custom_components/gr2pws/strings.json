@@ -1,0 +1,117 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "GR2PWS Smart Energy Meter",
+        "description": "Enter your Smart Life or Tuya Smart user code.\n\nFind it in the app under Settings > Account and Security. Case sensitive.",
+        "data": {
+          "user_code": "User Code"
+        }
+      },
+      "qrcode": {
+        "title": "Scan QR Code",
+        "description": "Scan the QR code below with your Smart Life or Tuya Smart APP, then confirm in the app and click Submit."
+      },
+      "select_device": {
+        "title": "Select Device",
+        "description": "QR code login successful! Select your GR2PWS device. The local IP will be auto-discovered.",
+        "data": {
+          "device_id": "Select Device",
+          "scan_interval": "Polling Interval (seconds)"
+        }
+      }
+    },
+    "error": {
+      "login_error": "Login failed.",
+      "device_not_found": "Device not found.",
+      "no_devices_found": "No devices found in your account."
+    },
+    "abort": {
+      "already_configured": "This device is already configured.",
+      "tuya_integration_required": "The official HA Tuya integration is required for QR code login."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "GR2PWS Options",
+        "description": "Adjust the polling interval for the device.",
+        "data": {
+          "scan_interval": "Polling Interval (seconds)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "cur_voltage": { "name": "Current Voltage" },
+      "cur_current": { "name": "Current Current" },
+      "cur_power": { "name": "Current Power" },
+      "cur_frequency": { "name": "Current Frequency" },
+      "power_factor": { "name": "Power Factor" },
+      "cpu_temp": { "name": "CPU Temperature" },
+      "ele": { "name": "Total Energy" },
+      "cost": { "name": "Total Cost" },
+      "leakage_ele": { "name": "Leakage Energy" },
+      "leakage_current": { "name": "Leakage Current" },
+      "balance_energy": { "name": "Balance Energy" },
+      "warning": { "name": "Warning Status" },
+      "add_ele": { "name": "Added Energy" },
+      "add_cost": { "name": "Added Cost" },
+      "ip_address": { "name": "Device Local IP" }
+    },
+    "switch": {
+      "switch_1": { "name": "Switch" },
+      "control": { "name": "Overlimit Control" },
+      "beep": { "name": "System Sound" },
+      "prepayment_switch": { "name": "Prepayment Switch" },
+      "real_time_switch": { "name": "Real-time Refresh" }
+    },
+    "select": {
+      "language": {
+        "name": "Device Language",
+        "state": { "chinese": "Chinese", "english": "English" }
+      },
+      "sw_mode": {
+        "name": "Switch Mode",
+        "state": { "controlled": "Controlled", "normally_open": "Normally Open" }
+      },
+      "standby_screen": {
+        "name": "Standby Screen",
+        "state": { "original": "Original", "measurement": "Measurement" }
+      },
+      "menu": {
+        "name": "Display Style",
+        "state": { "front": "Front", "back": "Back", "display_off": "Display Off" }
+      },
+      "price_mode": {
+        "name": "Price Mode",
+        "state": { "single_rate": "Single Rate", "stair": "Stair", "peak_valley_stair": "Peak Valley Stair" }
+      }
+    },
+    "number": {
+      "ovp": { "name": "Over Voltage Threshold" },
+      "ocp": { "name": "Over Current Threshold" },
+      "opp": { "name": "Over Power Threshold" },
+      "lvp": { "name": "Under Voltage Threshold" },
+      "olcp": { "name": "Leakage Current Threshold" },
+      "price": { "name": "Electricity Price" },
+      "work_value": { "name": "Working Brightness" },
+      "standby_value": { "name": "Standby Brightness" },
+      "standby_time": { "name": "Standby Delay" },
+      "over_time": { "name": "Recovery Delay" },
+      "countdown_1": { "name": "Switch Countdown" },
+      "credit": { "name": "Low Energy Alert" },
+      "reporting_interval": { "name": "Reporting Interval" },
+      "energy_charge": { "name": "Energy Charge" },
+      "add_ele_rw": { "name": "Add Energy" }
+    },
+    "button": {
+      "data_reset": { "name": "Reset Data" },
+      "wifi_reset": { "name": "WiFi Reset" },
+      "factor_reset": { "name": "Factory Reset" },
+      "screen_rotation": { "name": "Screen Rotation" },
+      "clear_energy": { "name": "Clear Balance Energy" }
+    }
+  }
+}

@@ -1,0 +1,33 @@
+# 调试目录（包含个人信息和密钥）
+debug/
+
+# 测试脚本（包含设备 ID、IP 等个人信息）
+test_gr2pws.py
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+
+# 虚拟环境
+venv/
+.venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 临时文件
+*.log
+*.tmp
