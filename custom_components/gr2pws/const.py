@@ -32,6 +32,9 @@ CONF_SCAN_INTERVAL = "scan_interval"
 
 DEFAULT_SCAN_INTERVAL = 5
 
+# 日/月/年用电量统计周期
+ENERGY_PERIODS = ["daily", "monthly", "yearly"]
+
 # 设备型号
 MODEL = "GR2PWS"
 MANUFACTURER = "ATORCH"

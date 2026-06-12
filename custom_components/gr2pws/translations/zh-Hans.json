@@ -58,7 +58,10 @@
       "warning": { "name": "告警状态" },
       "add_ele": { "name": "增加电量" },
       "add_cost": { "name": "增加电费" },
-      "ip_address": { "name": "设备内网IP" }
+      "ip_address": { "name": "设备内网IP" },
+      "ele_daily": { "name": "日用电量" },
+      "ele_monthly": { "name": "月用电量" },
+      "ele_yearly": { "name": "年用电量" }
     },
     "switch": {
       "switch_1": { "name": "开关状态" },
@@ -104,14 +107,20 @@
       "credit": { "name": "电量不足报警值" },
       "reporting_interval": { "name": "数据刷新间隔" },
       "energy_charge": { "name": "电量充值" },
-      "add_ele_rw": { "name": "增加电量" }
+      "add_ele_rw": { "name": "增加电量" },
+      "calibrate_ele_daily": { "name": "校准日用电量" },
+      "calibrate_ele_monthly": { "name": "校准月用电量" },
+      "calibrate_ele_yearly": { "name": "校准年用电量" }
     },
     "button": {
       "data_reset": { "name": "累计数据清零" },
       "wifi_reset": { "name": "WiFi设备重置" },
       "factor_reset": { "name": "恢复出厂设置" },
       "screen_rotation": { "name": "屏幕旋转" },
-      "clear_energy": { "name": "剩余电量清零" }
+      "clear_energy": { "name": "剩余电量清零" },
+      "reset_ele_daily": { "name": "重置日用电量" },
+      "reset_ele_monthly": { "name": "重置月用电量" },
+      "reset_ele_yearly": { "name": "重置年用电量" }
     }
   }
 }

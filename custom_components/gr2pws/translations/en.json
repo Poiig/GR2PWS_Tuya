@@ -58,7 +58,10 @@
       "warning": { "name": "Warning Status" },
       "add_ele": { "name": "Added Energy" },
       "add_cost": { "name": "Added Cost" },
-      "ip_address": { "name": "Device Local IP" }
+      "ip_address": { "name": "Device Local IP" },
+      "ele_daily": { "name": "Daily Energy" },
+      "ele_monthly": { "name": "Monthly Energy" },
+      "ele_yearly": { "name": "Yearly Energy" }
     },
     "switch": {
       "switch_1": { "name": "Switch" },
@@ -104,14 +107,20 @@
       "credit": { "name": "Low Energy Alert" },
       "reporting_interval": { "name": "Reporting Interval" },
       "energy_charge": { "name": "Energy Charge" },
-      "add_ele_rw": { "name": "Add Energy" }
+      "add_ele_rw": { "name": "Add Energy" },
+      "calibrate_ele_daily": { "name": "Calibrate Daily Energy" },
+      "calibrate_ele_monthly": { "name": "Calibrate Monthly Energy" },
+      "calibrate_ele_yearly": { "name": "Calibrate Yearly Energy" }
     },
     "button": {
       "data_reset": { "name": "Reset Data" },
       "wifi_reset": { "name": "WiFi Reset" },
       "factor_reset": { "name": "Factory Reset" },
       "screen_rotation": { "name": "Screen Rotation" },
-      "clear_energy": { "name": "Clear Balance Energy" }
+      "clear_energy": { "name": "Clear Balance Energy" },
+      "reset_ele_daily": { "name": "Reset Daily Energy" },
+      "reset_ele_monthly": { "name": "Reset Monthly Energy" },
+      "reset_ele_yearly": { "name": "Reset Yearly Energy" }
     }
   }
 }
