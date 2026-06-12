@@ -10,9 +10,7 @@ import logging
 from typing import Any
 
 from homeassistant.components.sensor import (
-    SensorDeviceClass,
     SensorEntity,
-    SensorStateClass,
 )
 from homeassistant.components.utility_meter import DEFAULT_OFFSET
 from homeassistant.components.utility_meter.const import (
@@ -129,13 +127,7 @@ class GR2PWSSensorEntity(CoordinatorEntity[GR2PWSCoordinator], SensorEntity):
         super().__init__(coordinator)
         self._device_id = device_id
         self.entity_description = description
-
         self._attr_unique_id = f"{device_id}_{description.key}"
-        self._attr_device_class = description.device_class
-        self._attr_state_class = description.state_class
-        self._attr_native_unit_of_measurement = description.native_unit
-        self._attr_entity_category = description.entity_category
-        self._attr_icon = description.icon
 
         if description.key == "warning":
             self._attr_options = list(WARNING_OPTIONS.keys())
@@ -171,15 +163,9 @@ class GR2PWSSensorEntity(CoordinatorEntity[GR2PWSCoordinator], SensorEntity):
 
 
 class GR2PWSIPAddressSensor(SensorEntity):
-    """设备内网 IP 地址传感器。
-
-    显示设备当前局域网 IP，属于诊断类别，方便用户查看设备网络信息。
-    支持在 HA 服务中调用 sensor.gr2pws_xxx_ip_address 的 service 来更新 IP。
-    """
+    """设备内网 IP 地址传感器。"""
 
     _attr_has_entity_name = True
-    _attr_device_class = None
-    _attr_state_class = None
     _attr_entity_category = EntityCategory.DIAGNOSTIC
     _attr_icon = "mdi:ip-network"
 

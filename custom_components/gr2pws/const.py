@@ -2,12 +2,16 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from homeassistant.components.sensor import (
     SensorDeviceClass,
+    SensorEntityDescription,
     SensorStateClass,
 )
-from homeassistant.components.number import NumberDeviceClass
+from homeassistant.components.switch import SwitchEntityDescription
+from homeassistant.components.select import SelectEntityDescription
+from homeassistant.components.number import NumberEntityDescription, NumberDeviceClass
+from homeassistant.components.button import ButtonEntityDescription
 from homeassistant.const import (
     EntityCategory,
     UnitOfEnergy,
@@ -44,16 +48,9 @@ TUYA_SCHEMA = "haauthorize"
 # 传感器定义
 # ============================================================================
 @dataclass(frozen=True)
-class GR2PWSSensorDescription:
-    """传感器实体描述。"""
-    key: str
-    translation_key: str
-    device_class: SensorDeviceClass | None = None
-    state_class: SensorStateClass | None = None
-    native_unit: str | None = None
+class GR2PWSSensorDescription(SensorEntityDescription):
+    """传感器实体描述，继承 HA 的 SensorEntityDescription。"""
     scale: int = 0
-    icon: str | None = None
-    entity_category: EntityCategory | None = None
 
 
 SENSORS: dict[str, GR2PWSSensorDescription] = {
@@ -62,7 +59,7 @@ SENSORS: dict[str, GR2PWSSensorDescription] = {
         translation_key="cur_voltage",
         device_class=SensorDeviceClass.VOLTAGE,
         state_class=SensorStateClass.MEASUREMENT,
-        native_unit=UnitOfElectricPotential.VOLT,
+        native_unit_of_measurement=UnitOfElectricPotential.VOLT,
         scale=2,
         icon="mdi:flash",
     ),
@@ -71,7 +68,7 @@ SENSORS: dict[str, GR2PWSSensorDescription] = {
         translation_key="cur_current",
         device_class=SensorDeviceClass.CURRENT,
         state_class=SensorStateClass.MEASUREMENT,
-        native_unit=UnitOfElectricCurrent.AMPERE,
+        native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
         scale=3,
         icon="mdi:current-ac",
     ),
@@ -80,7 +77,7 @@ SENSORS: dict[str, GR2PWSSensorDescription] = {
         translation_key="cur_power",
         device_class=SensorDeviceClass.POWER,
         state_class=SensorStateClass.MEASUREMENT,
-        native_unit=UnitOfPower.WATT,
+        native_unit_of_measurement=UnitOfPower.WATT,
         scale=2,
         icon="mdi:flash-outline",
     ),
@@ -89,7 +86,7 @@ SENSORS: dict[str, GR2PWSSensorDescription] = {
         translation_key="cur_frequency",
         device_class=SensorDeviceClass.FREQUENCY,
         state_class=SensorStateClass.MEASUREMENT,
-        native_unit=UnitOfFrequency.HERTZ,
+        native_unit_of_measurement=UnitOfFrequency.HERTZ,
         scale=2,
         icon="mdi:sine-wave",
     ),
@@ -98,7 +95,7 @@ SENSORS: dict[str, GR2PWSSensorDescription] = {
         translation_key="power_factor",
         device_class=SensorDeviceClass.POWER_FACTOR,
         state_class=SensorStateClass.MEASUREMENT,
-        native_unit=None,
+        native_unit_of_measurement=None,
         scale=2,
         icon="mdi:angle-acute",
     ),
@@ -107,7 +104,7 @@ SENSORS: dict[str, GR2PWSSensorDescription] = {
         translation_key="cpu_temp",
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
-        native_unit=UnitOfTemperature.CELSIUS,
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         scale=0,
         icon="mdi:thermometer",
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -117,7 +114,7 @@ SENSORS: dict[str, GR2PWSSensorDescription] = {
         translation_key="ele",
         device_class=SensorDeviceClass.ENERGY,
         state_class=SensorStateClass.TOTAL_INCREASING,
-        native_unit=UnitOfEnergy.KILO_WATT_HOUR,
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
         scale=3,
         icon="mdi:lightning-bolt",
     ),
@@ -126,7 +123,7 @@ SENSORS: dict[str, GR2PWSSensorDescription] = {
         translation_key="cost",
         device_class=SensorDeviceClass.MONETARY,
         state_class=SensorStateClass.TOTAL_INCREASING,
-        native_unit="CNY",
+        native_unit_of_measurement="CNY",
         scale=3,
         icon="mdi:currency-cny",
     ),
@@ -135,7 +132,7 @@ SENSORS: dict[str, GR2PWSSensorDescription] = {
         translation_key="leakage_ele",
         device_class=SensorDeviceClass.ENERGY,
         state_class=SensorStateClass.TOTAL_INCREASING,
-        native_unit=UnitOfEnergy.KILO_WATT_HOUR,
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
         scale=3,
         icon="mdi:flash-triangle-outline",
     ),
@@ -144,7 +141,7 @@ SENSORS: dict[str, GR2PWSSensorDescription] = {
         translation_key="leakage_current",
         device_class=SensorDeviceClass.CURRENT,
         state_class=SensorStateClass.MEASUREMENT,
-        native_unit=UnitOfElectricCurrent.AMPERE,
+        native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
         scale=3,
         icon="mdi:current-ac",
     ),
@@ -153,7 +150,7 @@ SENSORS: dict[str, GR2PWSSensorDescription] = {
         translation_key="balance_energy",
         device_class=SensorDeviceClass.ENERGY,
         state_class=SensorStateClass.TOTAL,
-        native_unit=UnitOfEnergy.KILO_WATT_HOUR,
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
         scale=2,
         icon="mdi:battery-charging",
     ),
@@ -162,7 +159,7 @@ SENSORS: dict[str, GR2PWSSensorDescription] = {
         translation_key="warning",
         device_class=None,
         state_class=None,
-        native_unit=None,
+        native_unit_of_measurement=None,
         scale=0,
         icon="mdi:alert-circle-outline",
         entity_category=EntityCategory.DIAGNOSTIC,
@@ -172,7 +169,7 @@ SENSORS: dict[str, GR2PWSSensorDescription] = {
         translation_key="add_ele",
         device_class=SensorDeviceClass.ENERGY,
         state_class=SensorStateClass.TOTAL_INCREASING,
-        native_unit=UnitOfEnergy.KILO_WATT_HOUR,
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
         scale=2,
         icon="mdi:plus-circle-outline",
     ),
@@ -181,7 +178,7 @@ SENSORS: dict[str, GR2PWSSensorDescription] = {
         translation_key="add_cost",
         device_class=SensorDeviceClass.MONETARY,
         state_class=SensorStateClass.TOTAL_INCREASING,
-        native_unit="CNY",
+        native_unit_of_measurement="CNY",
         scale=2,
         icon="mdi:cash-plus",
     ),
@@ -192,12 +189,8 @@ SENSORS: dict[str, GR2PWSSensorDescription] = {
 # 开关定义
 # ============================================================================
 @dataclass(frozen=True)
-class GR2PWSSwitchDescription:
-    """开关实体描述。"""
-    key: str
-    translation_key: str
-    icon: str = "mdi:toggle-switch"
-    entity_category: EntityCategory | None = None
+class GR2PWSSwitchDescription(SwitchEntityDescription):
+    """开关实体描述，继承 HA 的 SwitchEntityDescription。"""
 
 
 SWITCHES: dict[str, GR2PWSSwitchDescription] = {
@@ -237,13 +230,8 @@ SWITCHES: dict[str, GR2PWSSwitchDescription] = {
 # 选择器定义
 # ============================================================================
 @dataclass(frozen=True)
-class GR2PWSSelectDescription:
-    """选择器实体描述。"""
-    key: str
-    translation_key: str
-    options: list[str]
-    icon: str = "mdi:form-dropdown"
-    entity_category: EntityCategory | None = None
+class GR2PWSSelectDescription(SelectEntityDescription):
+    """选择器实体描述，继承 HA 的 SelectEntityDescription。"""
 
 
 SELECTS: dict[str, GR2PWSSelectDescription] = {
@@ -289,18 +277,10 @@ SELECTS: dict[str, GR2PWSSelectDescription] = {
 # 数值定义
 # ============================================================================
 @dataclass(frozen=True)
-class GR2PWSNumberDescription:
-    """数值实体描述。"""
-    key: str
-    translation_key: str
-    native_min_value: float
-    native_max_value: float
-    native_step: float = 1.0
-    native_unit: str | None = None
+class GR2PWSNumberDescription(NumberEntityDescription):
+    """数值实体描述，继承 HA 的 NumberEntityDescription。"""
     scale: int = 0
-    device_class: NumberDeviceClass | None = None
-    icon: str = "mdi:tune"
-    entity_category: EntityCategory | None = None
+    native_step: float = 1.0
     mode: str = "auto"
 
 
@@ -311,7 +291,7 @@ NUMBERS: dict[str, GR2PWSNumberDescription] = {
         native_min_value=0.1,
         native_max_value=320.0,
         native_step=0.1,
-        native_unit=UnitOfElectricPotential.VOLT,
+        native_unit_of_measurement=UnitOfElectricPotential.VOLT,
         scale=1,
         device_class=NumberDeviceClass.VOLTAGE,
         icon="mdi:flash-alert",
@@ -324,7 +304,7 @@ NUMBERS: dict[str, GR2PWSNumberDescription] = {
         native_min_value=0.1,
         native_max_value=100.0,
         native_step=0.1,
-        native_unit=UnitOfElectricCurrent.AMPERE,
+        native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
         scale=1,
         device_class=NumberDeviceClass.CURRENT,
         icon="mdi:flash-alert-outline",
@@ -337,7 +317,7 @@ NUMBERS: dict[str, GR2PWSNumberDescription] = {
         native_min_value=1,
         native_max_value=32000,
         native_step=1,
-        native_unit=UnitOfPower.WATT,
+        native_unit_of_measurement=UnitOfPower.WATT,
         scale=0,
         device_class=NumberDeviceClass.POWER,
         icon="mdi:flash-red-eye",
@@ -350,7 +330,7 @@ NUMBERS: dict[str, GR2PWSNumberDescription] = {
         native_min_value=0.1,
         native_max_value=320.0,
         native_step=0.1,
-        native_unit=UnitOfElectricPotential.VOLT,
+        native_unit_of_measurement=UnitOfElectricPotential.VOLT,
         scale=1,
         device_class=NumberDeviceClass.VOLTAGE,
         icon="mdi:flash-outline",
@@ -363,7 +343,7 @@ NUMBERS: dict[str, GR2PWSNumberDescription] = {
         native_min_value=0.01,
         native_max_value=0.1,
         native_step=0.001,
-        native_unit=UnitOfElectricCurrent.AMPERE,
+        native_unit_of_measurement=UnitOfElectricCurrent.AMPERE,
         scale=3,
         device_class=NumberDeviceClass.CURRENT,
         icon="mdi:current-ac",
@@ -376,7 +356,7 @@ NUMBERS: dict[str, GR2PWSNumberDescription] = {
         native_min_value=0.0,
         native_max_value=999.99,
         native_step=0.01,
-        native_unit="CNY/kWh",
+        native_unit_of_measurement="CNY/kWh",
         scale=2,
         icon="mdi:currency-cny",
         entity_category=EntityCategory.CONFIG,
@@ -408,7 +388,7 @@ NUMBERS: dict[str, GR2PWSNumberDescription] = {
         native_min_value=3,
         native_max_value=99,
         native_step=1,
-        native_unit=UnitOfTime.SECONDS,
+        native_unit_of_measurement=UnitOfTime.SECONDS,
         icon="mdi:timer-sand",
         entity_category=EntityCategory.CONFIG,
         mode="slider",
@@ -419,7 +399,7 @@ NUMBERS: dict[str, GR2PWSNumberDescription] = {
         native_min_value=0,
         native_max_value=99,
         native_step=1,
-        native_unit=UnitOfTime.MINUTES,
+        native_unit_of_measurement=UnitOfTime.MINUTES,
         icon="mdi:timer-outline",
         entity_category=EntityCategory.CONFIG,
         mode="slider",
@@ -430,7 +410,7 @@ NUMBERS: dict[str, GR2PWSNumberDescription] = {
         native_min_value=0,
         native_max_value=360000,
         native_step=1,
-        native_unit=UnitOfTime.SECONDS,
+        native_unit_of_measurement=UnitOfTime.SECONDS,
         icon="mdi:timer",
     ),
     "credit": GR2PWSNumberDescription(
@@ -439,7 +419,7 @@ NUMBERS: dict[str, GR2PWSNumberDescription] = {
         native_min_value=10,
         native_max_value=500,
         native_step=1,
-        native_unit=UnitOfEnergy.KILO_WATT_HOUR,
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
         icon="mdi:battery-alert",
         entity_category=EntityCategory.CONFIG,
     ),
@@ -449,7 +429,7 @@ NUMBERS: dict[str, GR2PWSNumberDescription] = {
         native_min_value=1,
         native_max_value=90,
         native_step=1,
-        native_unit=UnitOfTime.SECONDS,
+        native_unit_of_measurement=UnitOfTime.SECONDS,
         icon="mdi:update",
         entity_category=EntityCategory.CONFIG,
     ),
@@ -459,7 +439,7 @@ NUMBERS: dict[str, GR2PWSNumberDescription] = {
         native_min_value=0.0,
         native_max_value=5000.0,
         native_step=0.01,
-        native_unit=UnitOfEnergy.KILO_WATT_HOUR,
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
         scale=2,
         icon="mdi:cash-plus",
         entity_category=EntityCategory.CONFIG,
@@ -471,7 +451,7 @@ NUMBERS: dict[str, GR2PWSNumberDescription] = {
         native_min_value=0.0,
         native_max_value=50000.0,
         native_step=0.01,
-        native_unit=UnitOfEnergy.KILO_WATT_HOUR,
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
         scale=2,
         icon="mdi:plus-circle",
         entity_category=EntityCategory.CONFIG,
@@ -484,13 +464,8 @@ NUMBERS: dict[str, GR2PWSNumberDescription] = {
 # 按钮定义
 # ============================================================================
 @dataclass(frozen=True)
-class GR2PWSButtonDescription:
-    """按钮实体描述。"""
-    key: str
-    translation_key: str
-    icon: str = "mdi:button-pointer"
-    entity_category: EntityCategory | None = None
-    press_value: bool = True
+class GR2PWSButtonDescription(ButtonEntityDescription):
+    """按钮实体描述，继承 HA 的 ButtonEntityDescription。"""
 
 
 BUTTONS: dict[str, GR2PWSButtonDescription] = {
