@@ -69,14 +69,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     }
 
     # 注册设备到 HA 设备注册表
-    # 使用固定格式 gr2pws_{device_id} 作为设备名称，确保 entity_id 统一格式
+    # 不设置 name，HA 默认使用 config entry title ("GR2PWS")
+    # 用户可在 HA 界面中手动修改设备名为中文
     device_registry = dr.async_get(hass)
     device_registry.async_get_or_create(
         config_entry_id=entry.entry_id,
         identifiers={(DOMAIN, device_id)},
         manufacturer=MANUFACTURER,
         model=MODEL,
-        name=f"{DOMAIN}_{device_id}",
     )
 
     # 先转发平台设置（创建所有实体），再做首次数据获取
