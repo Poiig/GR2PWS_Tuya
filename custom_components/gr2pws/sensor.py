@@ -11,6 +11,7 @@ from datetime import datetime
 from typing import Any
 
 from homeassistant.components.sensor import (
+    RestoreSensor,
     SensorDeviceClass,
     SensorEntity,
     SensorStateClass,
@@ -20,7 +21,6 @@ from homeassistant.const import EntityCategory, UnitOfEnergy
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.event import async_track_time_change
-from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
@@ -158,10 +158,12 @@ class GR2PWSIPAddressSensor(SensorEntity):
         return self._ip_address
 
 
-class GR2PWSEnergyPeriodSensor(CoordinatorEntity[GR2PWSCoordinator], RestoreEntity, SensorEntity):
+class GR2PWSEnergyPeriodSensor(CoordinatorEntity[GR2PWSCoordinator], RestoreSensor, SensorEntity):
     """日/月/年用电量统计传感器。
 
-    继承 RestoreEntity 以支持 HA 重启后自动恢复上次累计值。
+    继承 RestoreSensor（HA 官方推荐的传感器状态恢复方式），
+    通过 async_get_last_sensor_data 恢复 native_value。
+
     基于 ele（总电量）的增量进行累加，定时重置。
     """
 
@@ -213,21 +215,24 @@ class GR2PWSEnergyPeriodSensor(CoordinatorEntity[GR2PWSCoordinator], RestoreEnti
         self.async_write_ha_state()
 
     async def async_added_to_hass(self) -> None:
-        """HA 添加实体时恢复上次数据并注册定时重置。"""
+        """HA 添加实体时通过 RestoreSensor 恢复上次数据，并注册定时重置。"""
         await super().async_added_to_hass()
 
-        # 通过 RestoreEntity 恢复上次状态
-        last_state = await self.async_get_last_state()
-        if last_state is not None:
+        # 通过 RestoreSensor.async_get_last_sensor_data 恢复 native_value
+        last_data = await self.async_get_last_sensor_data()
+        if last_data and last_data.native_value is not None:
             try:
-                self._accumulated = float(last_state.state)
+                self._accumulated = float(last_data.native_value)
                 _LOGGER.info(
                     "恢复 %s 用电量: %.3f kWh",
                     ENERGY_PERIOD_NAMES.get(self._period, self._period),
                     self._accumulated,
                 )
             except (ValueError, TypeError):
-                _LOGGER.warning("无法恢复 %s 用电量: 无效值 '%s'", self._period, last_state.state)
+                _LOGGER.warning(
+                    "无法恢复 %s 用电量: 无效值 '%s'",
+                    self._period, last_data.native_value,
+                )
 
         # 注册每日 0 点的重置任务
         self.async_on_remove(
