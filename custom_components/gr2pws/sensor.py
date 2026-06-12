@@ -20,6 +20,7 @@ from homeassistant.const import EntityCategory, UnitOfEnergy
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.event import async_track_time_change
+from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
@@ -54,7 +55,6 @@ async def async_setup_entry(
 
     entities: list[SensorEntity] = []
 
-    # 基本传感器实体
     for desc in SENSORS.values():
         entities.append(
             GR2PWSSensorEntity(
@@ -64,7 +64,6 @@ async def async_setup_entry(
             )
         )
 
-    # 设备内网 IP 传感器
     entities.append(
         GR2PWSIPAddressSensor(
             device_id=device_id,
@@ -72,7 +71,6 @@ async def async_setup_entry(
         )
     )
 
-    # 日/月/年用电量统计传感器
     for period in ENERGY_PERIODS:
         sensor = GR2PWSEnergyPeriodSensor(
             coordinator=coordinator,
@@ -80,7 +78,6 @@ async def async_setup_entry(
             period=period,
         )
         entities.append(sensor)
-        # 存储引用到 hass.data，供重置按钮和校准 number 使用
         data[f"energy_sensor_{period}"] = sensor
 
     async_add_entities(entities)
@@ -161,15 +158,11 @@ class GR2PWSIPAddressSensor(SensorEntity):
         return self._ip_address
 
 
-class GR2PWSEnergyPeriodSensor(CoordinatorEntity[GR2PWSCoordinator], SensorEntity):
+class GR2PWSEnergyPeriodSensor(CoordinatorEntity[GR2PWSCoordinator], RestoreEntity, SensorEntity):
     """日/月/年用电量统计传感器。
 
-    基于设备总电量（ele）的变化量进行累加：
-    - 每次 ele 增加时，将增量累加到当前周期的统计值
-    - 每天 0:00 重置日用电量
-    - 每月 1 日 0:00 重置月用电量
-    - 每年 1 月 1 日 0:00 重置年用电量
-    - 支持通过 native_value setter 手动校准数值
+    继承 RestoreEntity 以支持 HA 重启后自动恢复上次累计值。
+    基于 ele（总电量）的增量进行累加，定时重置。
     """
 
     _attr_has_entity_name = True
@@ -190,7 +183,6 @@ class GR2PWSEnergyPeriodSensor(CoordinatorEntity[GR2PWSCoordinator], SensorEntit
         self._attr_unique_id = f"{device_id}_ele_{period}"
         self._attr_translation_key = f"ele_{period}"
 
-        # 累计值和上一次总电量读数
         self._accumulated: float = 0.0
         self._last_ele: float | None = None
 
@@ -209,43 +201,33 @@ class GR2PWSEnergyPeriodSensor(CoordinatorEntity[GR2PWSCoordinator], SensorEntit
     def native_value(self) -> float:
         return round(self._accumulated, 6)
 
-    @property
-    def extra_state_attributes(self) -> dict[str, Any]:
-        """暴露可校准属性，让 HA UI 显示校准选项。"""
-        return {
-            "state_class": "total_increasing",
-            "unit_of_measurement": UnitOfEnergy.KILO_WATT_HOUR,
-        }
-
     def set_value(self, value: float) -> None:
-        """手动设置当前周期的累计值（校准/纠正）。
-
-        Args:
-            value: 新的累计用电量 (kWh)
-        """
+        """手动设置当前周期的累计值（校准/纠正）。"""
         _LOGGER.info(
-            "手动校准 %s 用电量: %s -> %.3f kWh",
+            "手动校准 %s 用电量: %.6f -> %.3f kWh",
             ENERGY_PERIOD_NAMES.get(self._period, self._period),
-            round(self._accumulated, 6),
-            value,
+            self._accumulated, value,
         )
         self._accumulated = value
-        self._last_ele = None  # 重置基线，避免重复计算
+        self._last_ele = None
         self.async_write_ha_state()
 
     async def async_added_to_hass(self) -> None:
         """HA 添加实体时恢复上次数据并注册定时重置。"""
         await super().async_added_to_hass()
 
-        # 从 HA recorder 恢复上次值
-        last_data = await self.async_get_last_sensor_data()
-        if last_data and last_data.native_value is not None:
-            self._accumulated = float(last_data.native_value)
-            _LOGGER.debug(
-                "恢复 %s 用电量: %.3f kWh",
-                ENERGY_PERIOD_NAMES.get(self._period, self._period),
-                self._accumulated,
-            )
+        # 通过 RestoreEntity 恢复上次状态
+        last_state = await self.async_get_last_state()
+        if last_state is not None:
+            try:
+                self._accumulated = float(last_state.state)
+                _LOGGER.info(
+                    "恢复 %s 用电量: %.3f kWh",
+                    ENERGY_PERIOD_NAMES.get(self._period, self._period),
+                    self._accumulated,
+                )
+            except (ValueError, TypeError):
+                _LOGGER.warning("无法恢复 %s 用电量: 无效值 '%s'", self._period, last_state.state)
 
         # 注册每日 0 点的重置任务
         self.async_on_remove(
@@ -281,20 +263,20 @@ class GR2PWSEnergyPeriodSensor(CoordinatorEntity[GR2PWSCoordinator], SensorEntit
     @callback
     def _handle_coordinator_update(self) -> None:
         """coordinator 数据更新时，计算 ele 的增量并累加。"""
+        if self.coordinator.data is None:
+            return
+
         raw_ele = self.coordinator.data.get("ele")
         if raw_ele is not None:
-            # ele 的 scale 是 3（原始值 / 1000 = kWh）
             current_ele = raw_ele / 1000.0
 
             if self._last_ele is not None:
                 delta = current_ele - self._last_ele
-                # 只累加正增量（忽略设备重置导致的负值）
                 if delta > 0:
                     self._accumulated += delta
                 elif delta < 0:
-                    # 总电量回退（设备被重置），重新设定基线
                     _LOGGER.debug(
-                        "总电量回退 detected (%.3f -> %.3f)，重置基线",
+                        "总电量回退 (%.3f -> %.3f)，重置基线",
                         self._last_ele, current_ele,
                     )
 

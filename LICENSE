@@ -1,0 +1,34 @@
+GNU GENERAL PUBLIC LICENSE
+Version 3, 29 June 2007
+
+Copyright (C) 2026 Poiig
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+================================================================================
+
+GR2PWS Smart Energy Meter - Home Assistant Custom Integration
+https://github.com/Poiig/GR2PWS_Tuya
+
+This project is licensed under the GNU General Public License v3.0.
+
+This means:
+- You CAN use, study, modify and distribute this software.
+- You MUST make any modified versions available under the same GPL-3.0 license.
+- You MUST keep all copyright notices and license headers intact.
+- Commercial use is permitted, but ANY derivative work MUST also be open source
+  under GPL-3.0. You CANNOT incorporate this code into proprietary/closed-source
+  products.
+
+For the full license text, see: https://www.gnu.org/licenses/gpl-3.0.txt

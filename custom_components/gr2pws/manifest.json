@@ -1,11 +1,13 @@
 {
   "domain": "gr2pws",
   "name": "GR2PWS Smart Energy Meter",
-  "codeowners": [],
+  "after_dependencies": ["tuya"],
+  "codeowners": ["Poiig"],
   "config_flow": true,
   "dependencies": [],
   "documentation": "https://github.com/Poiig/GR2PWS_Tuya",
+  "issue_tracker": "https://github.com/Poiig/GR2PWS_Tuya/issues",
   "iot_class": "local_polling",
   "requirements": ["tinytuya>=1.17.0"],
-  "version": "1.0.0"
+  "version": "1.1.0"
 }
