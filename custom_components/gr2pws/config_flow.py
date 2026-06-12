@@ -39,6 +39,13 @@ try:
 except ImportError:
     HAS_TUYA_SHARING = False
 
+# OptionsFlowWithReload 是 HA 2025.7+ 提供的，自动在选项变更后重载集成
+# 旧版本回退到 OptionsFlow，依赖 __init__.py 中的 update listener 重载
+try:
+    _OptionsFlowBase = config_entries.OptionsFlowWithReload
+except AttributeError:
+    _OptionsFlowBase = config_entries.OptionsFlow
+
 
 class _ConfigFlowTokenListener(SharingTokenListener):
     """配置流程中的 Token 监听器，仅用于满足 Manager 初始化要求。"""
@@ -282,19 +289,20 @@ class GR2PWSConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     def async_get_options_flow(
         config_entry: config_entries.ConfigEntry,
     ) -> GR2PWSOptionsFlow:
-        return GR2PWSOptionsFlow(config_entry)
+        return GR2PWSOptionsFlow()
 
 
-class GR2PWSOptionsFlow(config_entries.OptionsFlow):
-    """GR2PWS 选项配置流程。"""
+class GR2PWSOptionsFlow(_OptionsFlowBase):
+    """GR2PWS 选项配置流程。
 
-    def __init__(self, config_entry: config_entries.ConfigEntry) -> None:
-        self.config_entry = config_entry
+    继承 OptionsFlowWithReload（如果可用），选项变更后自动重载集成。
+    HA 2024.12+ 会自动注入 config_entry，不需要在 __init__ 中手动设置。
+    """
 
     async def async_step_init(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        """管理选项。"""
+        """管理选项：轮询间隔。"""
         if user_input is not None:
             return self.async_create_entry(title="", data=user_input)
 
@@ -305,6 +313,6 @@ class GR2PWSOptionsFlow(config_entries.OptionsFlow):
                 vol.Optional(
                     CONF_SCAN_INTERVAL,
                     default=options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL),
-                ): int,
+                ): vol.All(int, vol.Range(min=1, max=300)),
             }),
         )
