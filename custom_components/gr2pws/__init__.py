@@ -38,8 +38,8 @@ PLATFORMS = [
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """设置配置入口。
 
-    创建数据协调器并进行首次数据获取，
-    然后转发设置到所有平台（sensor、switch、select、number、button）。
+    创建数据协调器并转发设置到所有平台，
+    然后进行首次数据获取（不阻断实体创建）。
     """
     hass.data.setdefault(DOMAIN, {})
 
@@ -48,6 +48,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     local_key = entry.data[CONF_LOCAL_KEY]
     scan_interval = entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
 
+    _LOGGER.info(
+        "正在设置 GR2PWS 设备: id=%s, ip=%s, local_key=%s",
+        device_id,
+        ip_address,
+        "***已设置" if local_key else "未设置",
+    )
+
     coordinator = GR2PWSCoordinator(
         hass=hass,
         device_id=device_id,
@@ -55,8 +62,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         local_key=local_key,
         scan_interval=scan_interval,
     )
-
-    await coordinator.async_config_entry_first_refresh()
 
     hass.data[DOMAIN][entry.entry_id] = {
         "coordinator": coordinator,
@@ -73,7 +78,15 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         name=entry.title,
     )
 
+    # 先转发平台设置（创建所有实体），再做首次数据获取
+    # 这样即使设备暂时不可达，实体也会被创建（显示为 unavailable）
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
+
+    # 首次数据获取，失败不阻断（coordinator 会自动重试）
+    try:
+        await coordinator.async_config_entry_first_refresh()
+    except Exception as err:
+        _LOGGER.warning("首次数据获取失败（实体已创建，coordinator 将自动重试）: %s", err)
 
     entry.async_on_unload(entry.add_update_listener(_async_update_listener))
 

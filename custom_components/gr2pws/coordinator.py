@@ -152,10 +152,19 @@ class GR2PWSCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         通过 tinytuya 获取设备所有 DP 状态，返回解析后的字典。
         """
-        response = self._device.status()
+        try:
+            response = self._device.status()
+        except Exception as err:
+            _LOGGER.error(
+                "设备 %s (%s) 通信异常: %s",
+                self.device_id, self.ip_address, err,
+            )
+            raise
 
         if not response:
             raise UpdateFailed("设备返回空数据")
+
+        _LOGGER.debug("设备 %s 原始响应: %s", self.device_id, response)
 
         result: dict[str, Any] = {}
         dps = response.get("dps", {})
