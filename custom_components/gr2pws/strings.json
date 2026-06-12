@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "title": "GR2PWS Smart Energy Meter",
+        "title": "ATORCH GR2PWS Smart Energy Meter",
         "description": "Enter your Smart Life or Tuya Smart user code.\n\nFind it in the app under Settings > Account and Security. Case sensitive.",
         "data": {
           "user_code": "User Code"
@@ -34,7 +34,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "GR2PWS Options",
+        "title": "ATORCH GR2PWS Options",
         "description": "Adjust the polling interval for the device.",
         "data": {
           "scan_interval": "Polling Interval (seconds)"

@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "title": "GR2PWS 智能电表",
+        "title": "ATORCH GR2PWS 智能电表",
         "description": "输入您的 Smart Life 或 Tuya Smart 用户代码。\n\n在 APP 的「设置 > 账户和安全」中找到用户代码，区分大小写。",
         "data": {
           "user_code": "用户代码"
@@ -34,7 +34,7 @@
   "options": {
     "step": {
       "init": {
-        "title": "GR2PWS 选项",
+        "title": "ATORCH GR2PWS 选项",
         "description": "调整设备的数据轮询间隔。",
         "data": {
           "scan_interval": "轮询间隔（秒）"

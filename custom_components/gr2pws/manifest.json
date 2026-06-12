@@ -1,6 +1,6 @@
 {
   "domain": "gr2pws",
-  "name": "GR2PWS Smart Energy Meter",
+  "name": "ATORCH GR2PWS Smart Energy Meter",
   "after_dependencies": ["tuya"],
   "codeowners": ["Poiig"],
   "config_flow": true,
@@ -9,5 +9,5 @@
   "issue_tracker": "https://github.com/Poiig/GR2PWS_Tuya/issues",
   "iot_class": "local_polling",
   "requirements": ["tinytuya>=1.17.0"],
-  "version": "1.1.0"
+  "version": "1.0.0",
 }
