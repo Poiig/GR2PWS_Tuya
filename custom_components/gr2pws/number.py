@@ -18,20 +18,43 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .const import DOMAIN, NUMBERS, GR2PWSNumberDescription, ENERGY_PERIODS
 from .coordinator import GR2PWSCoordinator
 
-ENERGY_CALIBRATE_DESCRIPTIONS = {
-    period: NumberEntityDescription(
-        key=f"calibrate_ele_{period}",
-        translation_key=f"calibrate_ele_{period}",
+# 校准实体描述，按日/月/年顺序定义
+# 最大值按实际用电量设定：日 1000 kWh，月 30000 kWh，年 999999 kWh
+ENERGY_CALIBRATE_DESCRIPTIONS: list[tuple[str, NumberEntityDescription]] = [
+    ("daily", NumberEntityDescription(
+        key="calibrate_ele_daily",
+        translation_key="calibrate_ele_daily",
         native_min_value=0.0,
-        native_max_value=999999.0,
-        native_step=0.001,
+        native_max_value=10000.0,
+        native_step=0.01,
         native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
         icon="mdi:pencil",
         entity_category=EntityCategory.CONFIG,
         mode="box",
-    )
-    for period in ENERGY_PERIODS
-}
+    )),
+    ("monthly", NumberEntityDescription(
+        key="calibrate_ele_monthly",
+        translation_key="calibrate_ele_monthly",
+        native_min_value=0.0,
+        native_max_value=100000.0,
+        native_step=0.01,
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+        icon="mdi:pencil",
+        entity_category=EntityCategory.CONFIG,
+        mode="box",
+    )),
+    ("yearly", NumberEntityDescription(
+        key="calibrate_ele_yearly",
+        translation_key="calibrate_ele_yearly",
+        native_min_value=0.0,
+        native_max_value=999999.0,
+        native_step=0.01,
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+        icon="mdi:pencil",
+        entity_category=EntityCategory.CONFIG,
+        mode="box",
+    )),
+]
 
 
 async def async_setup_entry(
@@ -49,8 +72,8 @@ async def async_setup_entry(
         for desc in NUMBERS.values()
     ]
 
-    # 日/月/年用电量校准实体
-    for period, desc in ENERGY_CALIBRATE_DESCRIPTIONS.items():
+    # 按日/月/年顺序添加校准实体
+    for period, desc in ENERGY_CALIBRATE_DESCRIPTIONS:
         entities.append(
             GR2PWSEnergyCalibrateNumber(hass, coordinator, device_id, desc, period)
         )
@@ -109,7 +132,6 @@ class GR2PWSEnergyCalibrateNumber(CoordinatorEntity[GR2PWSCoordinator], NumberEn
     """日/月/年用电量校准实体。
 
     设置此数值会直接覆盖对应周期的累计用电量。
-    显示的值为当前周期传感器的实际值。
     """
 
     _attr_has_entity_name = True
