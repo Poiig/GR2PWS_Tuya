@@ -69,16 +69,23 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     }
 
     # 注册设备到 HA 设备注册表
-    # 明确设置设备名为 entry title，确保 entity_id 前缀为 gr2pws_xxx
-    # 用户可在 HA 界面中手动修改设备名为中文（修改设备名不影响 entity_id）
+    # name 用英文短名，控制 entity_id 前缀为 gr2pws_xxx
+    # 通过 name_by_user 设置中文显示名（不影响 entity_id）
     device_registry = dr.async_get(hass)
-    device_registry.async_get_or_create(
+    cloud_device_name = entry.title  # Tuya 云端设备名（中文）
+    device_entry = device_registry.async_get_or_create(
         config_entry_id=entry.entry_id,
         identifiers={(DOMAIN, device_id)},
         manufacturer=MANUFACTURER,
         model=MODEL,
-        name=entry.title,
+        name=f"GR2PWS {device_id[:8]}",
     )
+    # 设置用户自定义名称为中文，HA 设备页面显示中文名
+    if cloud_device_name and device_entry.name_by_user != cloud_device_name:
+        device_registry.async_update_device(
+            device_id=device_entry.id,
+            name_by_user=cloud_device_name,
+        )
 
     # 先转发平台设置（创建所有实体），再做首次数据获取
     # 这样即使设备暂时不可达，实体也会被创建（显示为 unavailable）
