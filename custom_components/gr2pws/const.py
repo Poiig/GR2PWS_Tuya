@@ -148,15 +148,6 @@ SENSORS: dict[str, GR2PWSSensorDescription] = {
         scale=3,
         icon="mdi:current-ac",
     ),
-    "balance_energy": GR2PWSSensorDescription(
-        key="balance_energy",
-        translation_key="balance_energy",
-        device_class=SensorDeviceClass.ENERGY,
-        state_class=SensorStateClass.TOTAL,
-        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
-        scale=2,
-        icon="mdi:battery-charging",
-    ),
     "warning": GR2PWSSensorDescription(
         key="warning",
         translation_key="warning",
@@ -184,6 +175,15 @@ SENSORS: dict[str, GR2PWSSensorDescription] = {
         native_unit_of_measurement="CNY",
         scale=2,
         icon="mdi:cash-plus",
+    ),
+    "balance_energy": GR2PWSSensorDescription(
+        key="balance_energy",
+        translation_key="balance_energy",
+        device_class=SensorDeviceClass.ENERGY,
+        state_class=SensorStateClass.TOTAL,
+        native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+        scale=2,
+        icon="mdi:battery-charging",
     ),
 }
 
