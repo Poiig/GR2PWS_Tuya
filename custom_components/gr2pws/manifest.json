@@ -1,6 +1,6 @@
 {
   "domain": "gr2pws",
-  "name": "ATORCH GR2PWS Smart Energy Meter",
+  "name": "炬为WiFi联网远控电表(GR2PWS)",
   "after_dependencies": ["tuya"],
   "codeowners": ["Poiig"],
   "config_flow": true,

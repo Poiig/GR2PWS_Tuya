@@ -2,7 +2,7 @@
   "config": {
     "step": {
       "user": {
-        "title": "ATORCH GR2PWS Smart Energy Meter",
+        "title": "ATORCH WiFi Smart Energy Meter (GR2PWS)",
         "description": "Enter your Smart Life or Tuya Smart user code.\n\nFind it in the app under Settings > Account and Security. Case sensitive.",
         "data": {
           "user_code": "User Code"

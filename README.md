@@ -1,4 +1,4 @@
-# ATORCH GR2PWS 智能电表
+# 炬为WiFi联网远控电表(GR2PWS)
 
 [![GitHub Release](https://img.shields.io/github/v/release/Poiig/GR2PWS_Tuya?style=flat-square)](https://github.com/Poiig/GR2PWS_Tuya/releases)
 [![HACS Integration](https://img.shields.io/badge/HACS-Integration-blue?style=flat-square)](https://hacs.xyz/)
@@ -10,7 +10,7 @@
 
 <a id="中文"></a>
 
-专为 **ATORCH（炬为）GR2PWS** 智能电表设计的 Home Assistant 自定义集成。通过 [tinytuya](https://github.com/jasonacox/tinytuya) 库在本地局域网直接通信，无需云服务、无需 MQTT、无需注册涂鸦 IoT 平台账号。
+专为 **炬为(ATORCH) GR2PWS** 智能电表设计的 Home Assistant 自定义集成。通过 [tinytuya](https://github.com/jasonacox/tinytuya) 库在本地局域网直接通信，无需云服务、无需 MQTT、无需注册涂鸦 IoT 平台账号。
 
 ## 功能特点
 
@@ -43,7 +43,7 @@
 ## 配置
 
 1. 在 HA 中进入 **设置 → 设备与服务 → 添加集成**
-2. 搜索 "ATORCH GR2PWS" 或 "GR2PWS"
+2. 搜索 "炬为" 或 "GR2PWS"
 3. 输入 Smart Life APP 的用户代码（在 APP 的「设置 → 账户和安全」中找到）
 4. 用 Smart Life APP 扫描 HA 显示的二维码
 5. 从列表中选择 GR2PWS 设备
@@ -71,7 +71,7 @@
 
 ## 轮询间隔
 
-默认每 **5 秒** 轮询一次设备状态，可在 **设置 → 设备与服务 → ATORCH GR2PWS → 配置** 中调整（1-300 秒）。
+默认每 **5 秒** 轮询一次设备状态，可在 **设置 → 设备与服务 → 炬为GR2PWS → 配置** 中调整（1-300 秒）。
 
 ## 网络建议
 
@@ -135,7 +135,7 @@ A dedicated Home Assistant custom integration for the **ATORCH GR2PWS** smart en
 ## Setup
 
 1. Go to **Settings → Devices & Services → Add Integration**
-2. Search for "ATORCH GR2PWS" or "GR2PWS"
+2. Search for "ATORCH" or "GR2PWS"
 3. Enter your Smart Life APP user code (Settings → Account and Security)
 4. Scan the QR code with Smart Life APP
 5. Select your GR2PWS device
@@ -168,10 +168,6 @@ Default: **5 seconds**. Adjustable in **Settings → Devices & Services → ATOR
 - **Static IP recommended**: Bind device MAC to a fixed IP in your router
 - **Auto IP rediscovery**: After 3 consecutive failures, automatically scans LAN for new IP
 - Auto-recovers when device comes back online
-
-## xtend_tuya Compatibility
-
-This integration is fully independent and can run alongside xtend_tuya simultaneously.
 
 ## Requirements
 
