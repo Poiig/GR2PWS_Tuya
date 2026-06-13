@@ -101,6 +101,7 @@ class GR2PWSSensorEntity(CoordinatorEntity[GR2PWSCoordinator], SensorEntity):
 
         if description.key == "warning":
             self._attr_options = list(WARNING_OPTIONS.keys())
+            self._attr_device_class = SensorDeviceClass.ENUM
 
     @property
     def device_info(self) -> dict[str, Any]:
@@ -126,6 +127,8 @@ class GR2PWSSensorEntity(CoordinatorEntity[GR2PWSCoordinator], SensorEntity):
     @property
     def extra_state_attributes(self) -> dict[str, Any] | None:
         if self.entity_description.key == "warning":
+            if not self.coordinator.data:
+                return None
             value = self.coordinator.data.get("warning")
             if value is not None:
                 return {
