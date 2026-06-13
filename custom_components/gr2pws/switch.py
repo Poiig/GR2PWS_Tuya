@@ -52,6 +52,8 @@ class GR2PWSSwitchEntity(CoordinatorEntity[GR2PWSCoordinator], SwitchEntity):
 
     @property
     def is_on(self) -> bool | None:
+        if not self.coordinator.data:
+            return None
         value = self.coordinator.data.get(self.entity_description.key)
         if value is None:
             return None

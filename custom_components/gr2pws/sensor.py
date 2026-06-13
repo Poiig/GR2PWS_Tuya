@@ -108,6 +108,8 @@ class GR2PWSSensorEntity(CoordinatorEntity[GR2PWSCoordinator], SensorEntity):
 
     @property
     def native_value(self) -> str | float | None:
+        if not self.coordinator.data:
+            return None
         value = self.coordinator.data.get(self.entity_description.key)
         if value is None:
             return None

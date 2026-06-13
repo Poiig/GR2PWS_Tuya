@@ -90,16 +90,23 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             name_by_user=None,
         )
 
-    # 清理该设备下所有旧的实体注册记录（entity_id 含中文拼音前缀）
-    # HA 会基于新的英文设备名重新生成 entity_id
+    # 清理本集成关联的所有旧实体注册记录（entity_id 含中文拼音前缀）
+    # 同时清理关联到本设备或本 config_entry 的实体
     ent_reg = er.async_get(hass)
-    old_entities = er.async_entries_for_device(ent_reg, device_entry.id)
     removed = 0
-    for entity_entry in old_entities:
-        # entity_id 前缀不是 gr2pws_ 说明是旧的，需要清除
+
+    # 方式1: 通过 config_entry 查找
+    for entity_entry in er.async_entries_for_config_entry(ent_reg, entry.entry_id):
         if not entity_entry.entity_id.startswith(f"{entity_entry.domain}.gr2pws_"):
             ent_reg.async_remove(entity_entry.entity_id)
             removed += 1
+
+    # 方式2: 通过 device 查找（可能有些实体关联到了设备但没关联到 config_entry）
+    for entity_entry in er.async_entries_for_device(ent_reg, device_entry.id):
+        if not entity_entry.entity_id.startswith(f"{entity_entry.domain}.gr2pws_"):
+            ent_reg.async_remove(entity_entry.entity_id)
+            removed += 1
+
     if removed:
         _LOGGER.info("清理了 %d 个旧实体注册记录（中文前缀 entity_id）", removed)
 

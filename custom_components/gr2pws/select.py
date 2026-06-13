@@ -52,6 +52,8 @@ class GR2PWSSelectEntity(CoordinatorEntity[GR2PWSCoordinator], SelectEntity):
 
     @property
     def current_option(self) -> str | None:
+        if not self.coordinator.data:
+            return None
         return self.coordinator.data.get(self.entity_description.key)
 
     async def async_select_option(self, option: str) -> None:
