@@ -22,12 +22,6 @@ from .const import (
     DOMAIN,
     MANUFACTURER,
     MODEL,
-    SENSORS,
-    SWITCHES,
-    SELECTS,
-    NUMBERS,
-    BUTTONS,
-    ENERGY_PERIODS,
 )
 from .coordinator import GR2PWSCoordinator
 
@@ -40,33 +34,6 @@ PLATFORMS = [
     Platform.NUMBER,
     Platform.BUTTON,
 ]
-
-
-def _get_all_entity_keys() -> list[tuple[str, str]]:
-    """返回所有实体的 (domain, key) 列表，用于清理旧注册记录。"""
-    keys: list[tuple[str, str]] = []
-    for key in SENSORS:
-        keys.append(("sensor", key))
-    # IP 传感器
-    keys.append(("sensor", "ip_address"))
-    # 日/月/年用电量传感器
-    for period in ENERGY_PERIODS:
-        keys.append(("sensor", f"ele_{period}"))
-    for key in SWITCHES:
-        keys.append(("switch", key))
-    for key in SELECTS:
-        keys.append(("select", key))
-    for key in NUMBERS:
-        keys.append(("number", key))
-    # 校准数值实体
-    for period in ENERGY_PERIODS:
-        keys.append(("number", f"calibrate_ele_{period}"))
-    for key in BUTTONS:
-        keys.append(("button", key))
-    # 重置按钮
-    for period in ENERGY_PERIODS:
-        keys.append(("button", f"reset_ele_{period}"))
-    return keys
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -101,9 +68,35 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     short_name = f"GR2PWS {device_id[:8]}"
     cloud_device_name = entry.title
 
-    # 注册设备到 HA 设备注册表
-    # name 用英文短名控制 entity_id 前缀
     device_registry = dr.async_get(hass)
+    ent_reg = er.async_get(hass)
+
+    # 查找并清理旧的设备记录及其所有关联实体
+    # 旧设备可能残留了中文 name_by_user，导致 entity_id 前缀是中文拼音
+    old_device = device_registry.async_get_device(
+        identifiers={(DOMAIN, device_id)},
+    )
+    if old_device is not None:
+        # 检查旧设备名是否包含中文（slugify 后不以 gr2pws_ 开头）
+        has_bad_name = (
+            old_device.name_by_user is not None
+            or (old_device.name is not None and not old_device.name.startswith("GR2PWS"))
+        )
+        if has_bad_name:
+            # 删除旧设备关联的所有实体注册记录
+            old_entities = er.async_entries_for_device(ent_reg, old_device.id)
+            for entity_entry in old_entities:
+                _LOGGER.info("清理旧实体: %s", entity_entry.entity_id)
+                ent_reg.async_remove(entity_entry.entity_id)
+            # 删除旧设备记录本身
+            _LOGGER.info(
+                "清理旧设备记录: name=%s, name_by_user=%s",
+                old_device.name,
+                old_device.name_by_user,
+            )
+            device_registry.async_remove_device(old_device.id)
+
+    # 创建全新的设备记录
     device_entry = device_registry.async_get_or_create(
         config_entry_id=entry.entry_id,
         identifiers={(DOMAIN, device_id)},
@@ -111,31 +104,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         model=MODEL,
         name=short_name,
     )
-    # 清除旧的中文 name_by_user
-    if device_entry.name_by_user is not None:
-        device_registry.async_update_device(
-            device_id=device_entry.id,
-            name_by_user=None,
-        )
+    _LOGGER.info(
+        "设备注册完成: name=%s, name_by_user=%s, id=%s",
+        device_entry.name,
+        device_entry.name_by_user,
+        device_entry.id,
+    )
 
-    # 通过 unique_id 逐个查找并清理旧的实体注册记录
-    # unique_id 格式为 {device_id}_{key}，不受 config_entry 或 device 变化影响
-    ent_reg = er.async_get(hass)
-    removed = 0
-    for domain, key in _get_all_entity_keys():
-        unique_id = f"{device_id}_{key}"
-        entity_id = ent_reg.async_get_entity_id(domain, DOMAIN, unique_id)
-        if entity_id and not entity_id.startswith(f"{domain}.gr2pws_"):
-            ent_reg.async_remove(entity_id)
-            removed += 1
-            _LOGGER.debug("清理旧实体: %s (unique_id=%s)", entity_id, unique_id)
-    if removed:
-        _LOGGER.info("清理了 %d 个旧实体注册记录（中文前缀 entity_id）", removed)
-
-    # 创建所有实体，此时设备名是英文短名，entity_id 前缀为 gr2pws_xxxxxxxx
+    # 创建所有实体
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
-    # 实体创建完成后，设置中文显示名（不影响已生成的 entity_id）
+    # 实体创建完成后，设置中文显示名
     if cloud_device_name:
         device_registry.async_update_device(
             device_id=device_entry.id,
