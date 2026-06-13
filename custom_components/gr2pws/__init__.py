@@ -22,6 +22,12 @@ from .const import (
     DOMAIN,
     MANUFACTURER,
     MODEL,
+    SENSORS,
+    SWITCHES,
+    SELECTS,
+    NUMBERS,
+    BUTTONS,
+    ENERGY_PERIODS,
 )
 from .coordinator import GR2PWSCoordinator
 
@@ -36,12 +42,35 @@ PLATFORMS = [
 ]
 
 
-async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """设置配置入口。
+def _get_all_entity_keys() -> list[tuple[str, str]]:
+    """返回所有实体的 (domain, key) 列表，用于清理旧注册记录。"""
+    keys: list[tuple[str, str]] = []
+    for key in SENSORS:
+        keys.append(("sensor", key))
+    # IP 传感器
+    keys.append(("sensor", "ip_address"))
+    # 日/月/年用电量传感器
+    for period in ENERGY_PERIODS:
+        keys.append(("sensor", f"ele_{period}"))
+    for key in SWITCHES:
+        keys.append(("switch", key))
+    for key in SELECTS:
+        keys.append(("select", key))
+    for key in NUMBERS:
+        keys.append(("number", key))
+    # 校准数值实体
+    for period in ENERGY_PERIODS:
+        keys.append(("number", f"calibrate_ele_{period}"))
+    for key in BUTTONS:
+        keys.append(("button", key))
+    # 重置按钮
+    for period in ENERGY_PERIODS:
+        keys.append(("button", f"reset_ele_{period}"))
+    return keys
 
-    创建数据协调器并转发设置到所有平台，
-    然后进行首次数据获取（不阻断实体创建）。
-    """
+
+async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    """设置配置入口。"""
     hass.data.setdefault(DOMAIN, {})
 
     device_id = entry.data[CONF_DEVICE_ID]
@@ -69,13 +98,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         "device_id": device_id,
     }
 
-    # 注册设备到 HA 设备注册表
-    # name 用英文短名 "GR2PWS xxxxxxxx"，控制 entity_id 前缀
-    # 实体创建后再设置 name_by_user 为中文显示名（否则会污染 entity_id）
-    device_registry = dr.async_get(hass)
-    cloud_device_name = entry.title  # Tuya 云端设备名（中文）
     short_name = f"GR2PWS {device_id[:8]}"
+    cloud_device_name = entry.title
 
+    # 注册设备到 HA 设备注册表
+    # name 用英文短名控制 entity_id 前缀
+    device_registry = dr.async_get(hass)
     device_entry = device_registry.async_get_or_create(
         config_entry_id=entry.entry_id,
         identifiers={(DOMAIN, device_id)},
@@ -83,35 +111,28 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         model=MODEL,
         name=short_name,
     )
-    # 清除可能残留的旧 name_by_user，确保 entity_id 用英文
+    # 清除旧的中文 name_by_user
     if device_entry.name_by_user is not None:
         device_registry.async_update_device(
             device_id=device_entry.id,
             name_by_user=None,
         )
 
-    # 清理本集成关联的所有旧实体注册记录（entity_id 含中文拼音前缀）
-    # 同时清理关联到本设备或本 config_entry 的实体
+    # 通过 unique_id 逐个查找并清理旧的实体注册记录
+    # unique_id 格式为 {device_id}_{key}，不受 config_entry 或 device 变化影响
     ent_reg = er.async_get(hass)
     removed = 0
-
-    # 方式1: 通过 config_entry 查找
-    for entity_entry in er.async_entries_for_config_entry(ent_reg, entry.entry_id):
-        if not entity_entry.entity_id.startswith(f"{entity_entry.domain}.gr2pws_"):
-            ent_reg.async_remove(entity_entry.entity_id)
+    for domain, key in _get_all_entity_keys():
+        unique_id = f"{device_id}_{key}"
+        entity_id = ent_reg.async_get_entity_id(domain, DOMAIN, unique_id)
+        if entity_id and not entity_id.startswith(f"{domain}.gr2pws_"):
+            ent_reg.async_remove(entity_id)
             removed += 1
-
-    # 方式2: 通过 device 查找（可能有些实体关联到了设备但没关联到 config_entry）
-    for entity_entry in er.async_entries_for_device(ent_reg, device_entry.id):
-        if not entity_entry.entity_id.startswith(f"{entity_entry.domain}.gr2pws_"):
-            ent_reg.async_remove(entity_entry.entity_id)
-            removed += 1
-
+            _LOGGER.debug("清理旧实体: %s (unique_id=%s)", entity_id, unique_id)
     if removed:
         _LOGGER.info("清理了 %d 个旧实体注册记录（中文前缀 entity_id）", removed)
 
-    # 先转发平台设置（创建所有实体），此时设备名是英文短名
-    # entity_id 前缀为 gr2pws_xxxxxxxx
+    # 创建所有实体，此时设备名是英文短名，entity_id 前缀为 gr2pws_xxxxxxxx
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     # 实体创建完成后，设置中文显示名（不影响已生成的 entity_id）
@@ -121,7 +142,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             name_by_user=cloud_device_name,
         )
 
-    # 首次数据获取，失败不阻断（coordinator 会自动重试）
+    # 首次数据获取，失败不阻断
     try:
         await coordinator.async_config_entry_first_refresh()
     except Exception as err:
