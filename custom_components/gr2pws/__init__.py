@@ -12,7 +12,6 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_SCAN_INTERVAL, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
-from homeassistant.helpers import entity_registry as er
 
 from .const import (
     CONF_DEVICE_ID,
@@ -69,34 +68,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     cloud_device_name = entry.title
 
     device_registry = dr.async_get(hass)
-    ent_reg = er.async_get(hass)
 
-    # 查找并清理旧的设备记录及其所有关联实体
-    # 旧设备可能残留了中文 name_by_user，导致 entity_id 前缀是中文拼音
-    old_device = device_registry.async_get_device(
-        identifiers={(DOMAIN, device_id)},
-    )
-    if old_device is not None:
-        # 检查旧设备名是否包含中文（slugify 后不以 gr2pws_ 开头）
-        has_bad_name = (
-            old_device.name_by_user is not None
-            or (old_device.name is not None and not old_device.name.startswith("GR2PWS"))
-        )
-        if has_bad_name:
-            # 删除旧设备关联的所有实体注册记录
-            old_entities = er.async_entries_for_device(ent_reg, old_device.id)
-            for entity_entry in old_entities:
-                _LOGGER.info("清理旧实体: %s", entity_entry.entity_id)
-                ent_reg.async_remove(entity_entry.entity_id)
-            # 删除旧设备记录本身
-            _LOGGER.info(
-                "清理旧设备记录: name=%s, name_by_user=%s",
-                old_device.name,
-                old_device.name_by_user,
-            )
-            device_registry.async_remove_device(old_device.id)
-
-    # 创建全新的设备记录
+    # 创建或获取设备记录
     device_entry = device_registry.async_get_or_create(
         config_entry_id=entry.entry_id,
         identifiers={(DOMAIN, device_id)},
@@ -105,20 +78,37 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         name=short_name,
     )
     _LOGGER.info(
-        "设备注册完成: name=%s, name_by_user=%s, id=%s",
+        "设备注册/获取完成: name=%s, name_by_user=%s, id=%s",
         device_entry.name,
         device_entry.name_by_user,
         device_entry.id,
     )
 
-    # 创建所有实体
+    # 如果设备从 deleted_devices 恢复，name_by_user 可能残留旧的中文名，
+    # 导致 entity_id 前缀变成中文拼音。必须在创建实体前清除。
+    if device_entry.name_by_user is not None:
+        _LOGGER.info(
+            "清除设备 name_by_user (防止中文拼音前缀): %s -> None",
+            device_entry.name_by_user,
+        )
+        device_registry.async_update_device(
+            device_id=device_entry.id,
+            name_by_user=None,
+        )
+        device_entry = device_registry.async_get(device_entry.id)
+
+    # 创建所有实体。此时 device.name_by_user 为 None，
+    # entity_id 前缀由 device.name（英文短名）决定。
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
-    # 实体创建完成后，设置中文显示名
+    # 实体创建完成后，设置中文显示名（不影响已生成的 entity_id）
     if cloud_device_name:
         device_registry.async_update_device(
             device_id=device_entry.id,
             name_by_user=cloud_device_name,
+        )
+        _LOGGER.info(
+            "设置设备中文显示名: name_by_user=%s", cloud_device_name,
         )
 
     # 首次数据获取，失败不阻断
