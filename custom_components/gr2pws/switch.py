@@ -45,6 +45,7 @@ class GR2PWSSwitchEntity(CoordinatorEntity[GR2PWSCoordinator], SwitchEntity):
         self._device_id = device_id
         self.entity_description = description
         self._attr_unique_id = f"gr2pws_{device_id}_{description.key}"
+        self._attr_entity_id = f"switch.gr2pws_{device_id[:8]}_{description.key}"
 
     @property
     def device_info(self) -> dict[str, Any]:

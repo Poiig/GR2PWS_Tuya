@@ -64,52 +64,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         "device_id": device_id,
     }
 
-    short_name = f"GR2PWS {device_id[:8]}"
-    cloud_device_name = entry.data.get("cloud_device_name", "")
-
+    # 注册设备（显示名用 config_entry.title，即 Tuya 云端的中文设备名）
     device_registry = dr.async_get(hass)
-
-    # 创建或获取设备记录
-    device_entry = device_registry.async_get_or_create(
+    device_registry.async_get_or_create(
         config_entry_id=entry.entry_id,
         identifiers={(DOMAIN, device_id)},
         manufacturer=MANUFACTURER,
         model=MODEL,
-        name=short_name,
-    )
-    _LOGGER.info(
-        "设备注册/获取完成: name=%s, name_by_user=%s, id=%s",
-        device_entry.name,
-        device_entry.name_by_user,
-        device_entry.id,
+        name=entry.title,
     )
 
-    # 如果设备从 deleted_devices 恢复，name_by_user 可能残留旧的中文名，
-    # 导致 entity_id 前缀变成中文拼音。必须在创建实体前清除。
-    if device_entry.name_by_user is not None:
-        _LOGGER.info(
-            "清除设备 name_by_user (防止中文拼音前缀): %s -> None",
-            device_entry.name_by_user,
-        )
-        device_registry.async_update_device(
-            device_id=device_entry.id,
-            name_by_user=None,
-        )
-        device_entry = device_registry.async_get(device_entry.id)
-
-    # 创建所有实体。此时 device.name_by_user 为 None，
-    # entity_id 前缀由 device.name（英文短名）决定。
+    # 创建所有实体（entity_id 已在各实体 __init__ 中直接设置，不受设备名影响）
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-
-    # 实体创建完成后，设置中文显示名（不影响已生成的 entity_id）
-    if cloud_device_name:
-        device_registry.async_update_device(
-            device_id=device_entry.id,
-            name_by_user=cloud_device_name,
-        )
-        _LOGGER.info(
-            "设置设备中文显示名: name_by_user=%s", cloud_device_name,
-        )
 
     # 首次数据获取，失败不阻断
     try:

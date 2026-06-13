@@ -67,6 +67,7 @@ class GR2PWSButtonEntity(CoordinatorEntity[GR2PWSCoordinator], ButtonEntity):
         self._device_id = device_id
         self.entity_description = description
         self._attr_unique_id = f"gr2pws_{device_id}_{description.key}"
+        self._attr_entity_id = f"button.gr2pws_{device_id[:8]}_{description.key}"
 
     @property
     def device_info(self) -> dict[str, Any]:
@@ -99,6 +100,7 @@ class GR2PWSEnergyResetButton(CoordinatorEntity[GR2PWSCoordinator], ButtonEntity
         self._period = period
         self.entity_description = description
         self._attr_unique_id = f"gr2pws_{device_id}_{description.key}"
+        self._attr_entity_id = f"button.gr2pws_{device_id[:8]}_{description.key}"
 
     @property
     def device_info(self) -> dict[str, Any]:
