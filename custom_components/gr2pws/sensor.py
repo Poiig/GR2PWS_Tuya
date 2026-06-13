@@ -98,7 +98,7 @@ class GR2PWSSensorEntity(CoordinatorEntity[GR2PWSCoordinator], SensorEntity):
         self._device_id = device_id
         self.entity_description = description
         self._attr_unique_id = f"gr2pws_{device_id}_{description.key}"
-        self._attr_entity_id = f"sensor.gr2pws_{device_id[:8]}_{description.key}"
+        self.entity_id = f"sensor.gr2pws_{device_id[:8]}_{description.key}"
 
         if description.key == "warning":
             self._attr_options = list(WARNING_OPTIONS.keys())
@@ -149,7 +149,7 @@ class GR2PWSIPAddressSensor(SensorEntity):
         self._device_id = device_id
         self._ip_address = ip_address
         self._attr_unique_id = f"gr2pws_{device_id}_ip_address"
-        self._attr_entity_id = f"sensor.gr2pws_{device_id[:8]}_ip_address"
+        self.entity_id = f"sensor.gr2pws_{device_id[:8]}_ip_address"
         self._attr_native_value = ip_address
 
     @property
@@ -190,7 +190,7 @@ class GR2PWSEnergyPeriodSensor(CoordinatorEntity[GR2PWSCoordinator], RestoreSens
         self._device_id = device_id
         self._period = period
         self._attr_unique_id = f"gr2pws_{device_id}_ele_{period}"
-        self._attr_entity_id = f"sensor.gr2pws_{device_id[:8]}_ele_{period}"
+        self.entity_id = f"sensor.gr2pws_{device_id[:8]}_ele_{period}"
         self._attr_translation_key = f"ele_{period}"
 
         self._accumulated: float = 0.0
