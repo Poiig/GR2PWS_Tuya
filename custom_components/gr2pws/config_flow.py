@@ -172,11 +172,12 @@ class GR2PWSConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     ip_address = await self._scan_device_ip(device_id)
 
                     return self.async_create_entry(
-                        title=device_info.get("name", f"GR2PWS ({device_id[:8]})"),
+                        title=f"GR2PWS {device_id[:8]}",
                         data={
                             CONF_DEVICE_ID: device_id,
                             CONF_LOCAL_KEY: device_info.get("local_key", ""),
                             CONF_IP_ADDRESS: ip_address,
+                            "cloud_device_name": device_info.get("name", ""),
                             CONF_SCAN_INTERVAL: user_input.get(
                                 CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL
                             ),

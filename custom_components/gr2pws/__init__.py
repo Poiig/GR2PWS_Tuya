@@ -65,7 +65,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     }
 
     short_name = f"GR2PWS {device_id[:8]}"
-    cloud_device_name = entry.title
+    cloud_device_name = entry.data.get("cloud_device_name", "")
 
     device_registry = dr.async_get(hass)
 
