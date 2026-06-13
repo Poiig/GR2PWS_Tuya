@@ -12,6 +12,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_SCAN_INTERVAL, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers import entity_registry as er
 
 from .const import (
     CONF_DEVICE_ID,
@@ -88,6 +89,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             device_id=device_entry.id,
             name_by_user=None,
         )
+
+    # 清理该设备下所有旧的实体注册记录（entity_id 含中文拼音前缀）
+    # HA 会基于新的英文设备名重新生成 entity_id
+    ent_reg = er.async_get(hass)
+    old_entities = er.async_entries_for_device(ent_reg, device_entry.id)
+    removed = 0
+    for entity_entry in old_entities:
+        # entity_id 前缀不是 gr2pws_ 说明是旧的，需要清除
+        if not entity_entry.entity_id.startswith(f"{entity_entry.domain}.gr2pws_"):
+            ent_reg.async_remove(entity_entry.entity_id)
+            removed += 1
+    if removed:
+        _LOGGER.info("清理了 %d 个旧实体注册记录（中文前缀 entity_id）", removed)
 
     # 先转发平台设置（创建所有实体），此时设备名是英文短名
     # entity_id 前缀为 gr2pws_xxxxxxxx
