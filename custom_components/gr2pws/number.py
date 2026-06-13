@@ -95,7 +95,7 @@ class GR2PWSNumberEntity(CoordinatorEntity[GR2PWSCoordinator], NumberEntity):
         super().__init__(coordinator)
         self._device_id = device_id
         self.entity_description = description
-        self._attr_unique_id = f"{device_id}_{description.key}"
+        self._attr_unique_id = f"gr2pws_{device_id}_{description.key}"
         self._attr_mode = (
             NumberMode.SLIDER if description.mode == "slider" else NumberMode.BOX
         )
@@ -152,7 +152,7 @@ class GR2PWSEnergyCalibrateNumber(CoordinatorEntity[GR2PWSCoordinator], NumberEn
         self._device_id = device_id
         self._period = period
         self.entity_description = description
-        self._attr_unique_id = f"{device_id}_{description.key}"
+        self._attr_unique_id = f"gr2pws_{device_id}_{description.key}"
 
     @property
     def device_info(self) -> dict[str, Any]:
